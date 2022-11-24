@@ -1304,12 +1304,15 @@ func (p *Platform) resourceTargetGroupCreate(
 	state.Port = p.config.ServicePort
 
 	ctg, err := elbsrv.CreateTargetGroupWithContext(ctx, &elbv2.CreateTargetGroupInput{
-		HealthCheckEnabled: aws.Bool(true),
-		Name:               &targetGroupName,
-		Port:               &state.Port,
-		Protocol:           aws.String("HTTP"),
-		TargetType:         aws.String("ip"),
-		VpcId:              &subnets.Subnets.VpcId,
+		HealthCheckEnabled:         aws.Bool(true),
+		HealthCheckIntervalSeconds: aws.Int64(5),
+		HealthCheckTimeoutSeconds:  aws.Int64(3),
+		HealthyThresholdCount:      aws.Int64(2),
+		Name:                       &targetGroupName,
+		Port:                       &state.Port,
+		Protocol:                   aws.String("HTTP"),
+		TargetType:                 aws.String("ip"),
+		VpcId:                      &subnets.Subnets.VpcId,
 	})
 	if err != nil || ctg == nil || len(ctg.TargetGroups) == 0 {
 		return status.Errorf(codes.Internal, "failed to create target group: %s", err)
